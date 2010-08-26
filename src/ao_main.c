@@ -32,7 +32,7 @@ st_ao_inst ao_inst;
 static GOptionEntry cmd_entry_main[] = {
     { "iface", 'i', 0, G_OPTION_ARG_STRING, &(ao_inst.cmd_iface), "Interface name (default is wlan0)" },
     { "driver", 'd', 0, G_OPTION_ARG_STRING, &(ao_inst.cmd_driver), "Driver name (default is to guess)" },
-    { "drvlist", 'l', 0, G_OPTION_ARG_NONE, &(ao_inst.cmd_drvlist), "Show avilable drivers (and exit afterwards)" },
+    { "drvlist", 'l', 0, G_OPTION_ARG_NONE, &(ao_inst.cmd_drvlist), "Show available drivers (and exit afterwards)" },
     { "channel", 'c', 0, G_OPTION_ARG_INT, &(ao_inst.cmd_channel), "Channel number (by default hop between channels)" },
     { "payload", 'p', 0, G_OPTION_ARG_FILENAME, &(ao_inst.cmd_payload), "Payload configuration file" },
     { NULL }
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     cmd_ctx = g_option_context_new("- 802.11 packet injection tool");
     g_option_context_add_main_entries(cmd_ctx, cmd_entry_main, NULL);
-    g_option_context_set_description(cmd_ctx, "Avilable protocols: ieee80211, ipv4, ipv6, arp, tcp, udp, payload");
+    g_option_context_set_description(cmd_ctx, "Available protocols: ieee80211, ipv4, ipv6, arp, tcp, udp, payload");
     
     GOptionGroup* cmd_grp_dbg = g_option_group_new("debug", "Debugging Options:", "Debugging options", NULL, NULL);
     g_option_group_add_entries(cmd_grp_dbg, cmd_entry_debug);
@@ -110,8 +110,11 @@ int main(int argc, char* argv[]) {
     
     if (!g_option_context_parse(cmd_ctx, &argc, &argv, &cmd_error)) {
         g_print("Option parsing failed: %s\n", cmd_error->message);
+        g_option_context_free(cmd_ctx);
+        g_error_free(cmd_error);
         exit(1);
     }
+    g_option_context_free(cmd_ctx);
     
     // Debug mask list
     if (ao_inst.cmd_dbg_mask != NULL) {
@@ -203,15 +206,15 @@ int main(int argc, char* argv[]) {
         lorcon_driver_t* drv_list = lorcon_list_drivers();
         g_print("Supported LORCON drivers:\n");
         while (drv_list) {
-	        g_print("* %-10.10s - %s\n", drv_list->name, drv_list->details);
-	        drv_list = drv_list->next;
+            g_print("* %-10.10s - %s\n", drv_list->name, drv_list->details);
+            drv_list = drv_list->next;
         }
         lorcon_free_driver_list(drv_list);
         exit(0);  
     }
 
     // Vars
-	lorcon_driver_t* dri;
+    lorcon_driver_t* dri;
 
     // Payload
     if (ao_payload_init() == FALSE) {
